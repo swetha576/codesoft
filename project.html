@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em 0;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .project-list, .task-list {
+            margin-top: 20px;
+        }
+
+        .project-item, .task-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        input[type="text"], input[type="date"], button {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            height: 20px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background-color: #5cb85c;
+            height: 100%;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Project Management Tool</h1>
+    </header>
+
+    <div class="container">
+        <h2>Create a New Project</h2>
+        <input type="text" id="project-name" placeholder="Enter project name">
+        <button onclick="createProject()">Add Project</button>
+
+        <div class="project-list" id="project-list">
+            <!-- Project Items will be inserted here dynamically -->
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let projects = [];
+
+        // Function to create a new project
+        function createProject() {
+            const projectName = document.getElementById('project-name').value.trim();
+            if (projectName) {
+                const project = {
+                    id: projects.length + 1,
+                    name: projectName,
+                    tasks: [],
+                    completedTasks: 0
+                };
+                projects.push(project);
+                displayProjects();
+                document.getElementById('project-name').value = '';  // Clear input field
+            } else {
+                alert("Please enter a project name.");
+            }
+        }
+
+        // Function to display all projects
+        function displayProjects() {
+            const projectList = document.getElementById('project-list');
+            projectList.innerHTML = '';  // Clear the current list
+
+            projects.forEach(project => {
+                const projectItem = document.createElement('div');
+                projectItem.classList.add('project-item');
+                projectItem.innerHTML = `
+                    <h3>${project.name}</h3>
+                    <p>${project.tasks.length} task(s) - ${project.completedTasks} completed</p>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: ${getProgressPercentage(project)}%;"></div>
+                    </div>
+                    <div class="task-list" id="task-list-${project.id}">
+                        <input type="text" id="task-name-${project.id}" placeholder="Enter task name">
+                        <input type="date" id="task-deadline-${project.id}">
+                        <button onclick="addTask(${project.id})">Add Task</button>
+                        <!-- Tasks will be inserted here dynamically -->
+                    </div>
+                    <div id="tasks-${project.id}">
+                        ${displayTasks(project.tasks, project.id)}
+                    </div>
+                `;
+                projectList.appendChild(projectItem);
+            });
+        }
+
+        // Function to add a new task to a project
+        function addTask(projectId) {
+            const taskNameInput = document.getElementById(`task-name-${projectId}`);
+            const taskDeadlineInput = document.getElementById(`task-deadline-${projectId}`);
+
+            const taskName = taskNameInput.value.trim();
+            const taskDeadline = taskDeadlineInput.value;
+
+            if (taskName && taskDeadline) {
+                const task = {
+                    id: Date.now(),
+                    name: taskName,
+                    deadline: taskDeadline,
+                    isCompleted: false
+                };
+
+                const project = projects.find(p => p.id === projectId);
+                project.tasks.push(task);
+
+                displayProjects();  // Update the display
+                taskNameInput.value = '';
+                taskDeadlineInput.value = '';
+            } else {
+                alert("Please enter both task name and deadline.");
+            }
+        }
+
+        // Function to display tasks in a project
+        function displayTasks(tasks, projectId) {
+            return tasks.map(task => `
+                <div class="task-item">
+                    <p>${task.name} - Deadline: ${task.deadline}</p>
+                    <button onclick="completeTask(${projectId}, ${task.id})" ${task.isCompleted ? 'disabled' : ''}>
+                        ${task.isCompleted ? 'Completed' : 'Mark as Complete'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Function to mark a task as complete
+        function completeTask(projectId, taskId) {
+            const project = projects.find(p => p.id === projectId);
+            const task = project.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.isCompleted = true;
+                project.completedTasks += 1;
+                displayProjects();  // Update the project list
+            }
+        }
+
+        // Function to calculate progress percentage
+        function getProgressPercentage(project) {
+            if (project.tasks.length === 0) return 0;
+            return (project.completedTasks / project.tasks.length) * 100;
+        }
+    </script>
+</body>
+</html>

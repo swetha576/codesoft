@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1em 0;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        .login-status {
+            float: right;
+            margin-right: 20px;
+        }
+        section#products {
+            padding: 20px;
+        }
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .product-item {
+            border: 1px solid #ddd;
+            margin: 10px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        .cart-items {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My E-Commerce Website</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Products</a></li>
+                <li><a href="#">Cart (<span id="cart-count">0</span>)</a></li>
+            </ul>
+        </nav>
+        <div class="login-status" id="login-status">
+            <span id="user-status">Not Logged In</span> | 
+            <button onclick="toggleLogin()">Login</button>
+        </div>
+    </header>
+
+    <!-- Product Filtering Section -->
+    <section id="filter">
+        <h3>Filter Products by Max Price</h3>
+        <label for="price-filter">Max Price: </label>
+        <input type="number" id="price-filter" value="50">
+        <button onclick="filterProducts()">Apply Filter</button>
+    </section>
+
+    <!-- Product Listing -->
+    <section id="products">
+        <h2>Products</h2>
+        <div class="product-list">
+            <!-- Product Items will be inserted here via JavaScript -->
+        </div>
+    </section>
+
+    <!-- Shopping Cart -->
+    <section id="cart" style="display:none;">
+        <h2>Your Cart</h2>
+        <div class="cart-items"></div>
+        <button onclick="proceedToCheckout()">Proceed to Checkout</button>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 My E-Commerce Website</p>
+    </footer>
+
+    <script>
+        // Simulate product data
+        const products = [
+            { id: 1, name: "Product 1", price: 10.00, image: "product1.jpg" },
+            { id: 2, name: "Product 2", price: 15.00, image: "product2.jpg" },
+            { id: 3, name: "Product 3", price: 20.00, image: "product3.jpg" },
+            { id: 4, name: "Product 4", price: 25.00, image: "product4.jpg" },
+            { id: 5, name: "Product 5", price: 30.00, image: "product5.jpg" },
+        ];
+
+        // Shopping cart array
+        let cart = [];
+
+        // Simulated user login state
+        let isLoggedIn = false;
+
+        // Function to display products
+        function displayProducts(productsToDisplay) {
+            const productList = document.querySelector('.product-list');
+            productList.innerHTML = ''; // Clear the list
+            productsToDisplay.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.classList.add('product-item');
+                productItem.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" width="100" height="100">
+                    <h3>${product.name}</h3>
+                    <p>Price: $${product.price.toFixed(2)}</p>
+                    <button onclick="addToCart(${product.id})">Add to Cart</button>
+                `;
+                productList.appendChild(productItem);
+            });
+        }
+
+        // Function to add a product to the cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            cart.push(product);
+            updateCartCount();
+            alert(`${product.name} has been added to your cart!`);
+        }
+
+        // Function to update cart count
+        function updateCartCount() {
+            document.getElementById('cart-count').innerText = cart.length;
+        }
+
+        // Function to display the cart
+        function displayCart() {
+            const cartSection = document.getElementById('cart');
+            cartSection.style.display = 'block';
+            const cartItems = document.querySelector('.cart-items');
+            cartItems.innerHTML = ''; // Clear the cart items
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>Price: $${item.price.toFixed(2)}</p>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+        }
+
+        // Function to proceed to checkout (simulated)
+        function proceedToCheckout() {
+            if (isLoggedIn) {
+                alert("Checkout successful! Thank you for your purchase.");
+                cart = [];
+                updateCartCount();
+                document.querySelector('.cart-items').innerHTML = '';
+            } else {
+                alert("Please login to proceed to checkout.");
+            }
+        }
+
+        // Product filtering by price
+        function filterProducts() {
+            const maxPrice = document.getElementById('price-filter').value;
+            const filteredProducts = products.filter(product => product.price <= maxPrice);
+            displayProducts(filteredProducts);
+        }
+
+        // Simulated login/logout functionality
+        function toggleLogin() {
+            isLoggedIn = !isLoggedIn;
+            const userStatus = document.getElementById('user-status');
+            const loginButton = document.querySelector('.login-status button');
+            if (isLoggedIn) {
+                userStatus.innerText = "Logged In";
+                loginButton.innerText = "Logout";
+            } else {
+                userStatus.innerText = "Not Logged In";
+                loginButton.innerText = "Login";
+            }
+        }
+
+        // Initialize the page by displaying all products
+        displayProducts(products);
+    </script>
+</body>
+</html>
